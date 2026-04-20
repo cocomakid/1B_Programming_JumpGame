@@ -1,3 +1,4 @@
+using Microsoft.Unity.VisualStudio.Editor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -19,12 +20,33 @@ public class PlayerController : MonoBehaviour
     //private bool isSpeed = false;
     private bool isKickboard = false;
 
+    [SerializeField] private UnityEngine.UI.Image[] hearts;
+    private int hp = 3;
+    public static int currentHp = 3;
+
+    private bool isInvincible = false;
+    private bool isShield = false;
+
+    private SpriteRenderer sr;
+
+    [SerializeField] private GameObject shieldObject;
+
+    AudioManager audioManager;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         pAni = GetComponent<Animator>();
+        sr = GetComponent<SpriteRenderer>();
+
+        audioManager = AudioManager.instance;
     }
 
+    private void Start()
+    {
+        hp = currentHp;
+        UpdateHearts();
+    }
     private void Update()
     {
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
@@ -60,25 +82,118 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void ResetInvincible()
+    {
+        isInvincible = false;
+        isShield = false;
+        shieldObject.SetActive(false);
+    }
+    void EndShield()
+    {
+        isInvincible = false;
+        isShield = false;
+        shieldObject.SetActive(false);
+    }
+    void RestartScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void Die()
+    {
+        PlayerController.currentHp = 3;
+
+        if (audioManager != null && audioManager.death != null)
+        {
+            audioManager.PlaySFX(audioManager.death);
+        }
+
+        pAni.SetTrigger("Die");
+
+        rb.linearVelocity = Vector2.zero;
+        this.enabled = false;
+
+        Invoke(nameof(RestartScene), 1.5f);
+    }
+
+    public void TakeDamage()
+    {
+        if (isInvincible) return;
+
+        isInvincible = true;
+
+        hp--;
+        currentHp = hp;
+
+        UpdateHearts();
+
+        if (hp <= 0)
+        {
+            Die();
+            return;
+        }
+
+        Invoke(nameof(ResetInvincible), 2f);
+    }
+
+    void UpdateHearts()
+    {
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            hearts[i].enabled = i < hp;
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Respawn"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            Die();
         }
 
         if (collision.CompareTag("Enemy"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            if (isInvincible) return;
+
+            if (audioManager != null && audioManager.enemy != null)
+            {
+                audioManager.PlaySFX(audioManager.enemy);
+            }
+
+            if (isShield)
+            {
+                isInvincible = true;
+                Invoke(nameof(EndShield), 3f);
+                return;
+            }
+
+            TakeDamage();
         }
+    
 
         if (collision.CompareTag("Finish"))
         {
+            if (audioManager != null && audioManager.portalIn != null)
+            {
+                audioManager.PlaySFX(audioManager.portalIn);
+            }
             collision.GetComponent<LevelObject>().MoveToNextLevel();
         }
-        
 
-        if(collision.CompareTag("speedItem"))
+
+        if (collision.CompareTag("hpItem"))
+        {
+            if (hp < 3)
+            {
+                hp++;
+                currentHp = hp;
+                UpdateHearts(); 
+            }
+
+            Destroy(collision.gameObject);
+        }
+        
+        if (collision.CompareTag("speedItem"))
         {
             moveSpeed += 3f;
             isKickboard = true;
@@ -86,11 +201,23 @@ public class PlayerController : MonoBehaviour
             Invoke(nameof(ResetSpeed), 5f);
         }
 
+        if (collision.CompareTag("shieldItem"))
+        {
+            isShield = true;
+            shieldObject.SetActive(true);
+            Destroy(collision.gameObject);
+        }
+
     }
         void ResetSpeed()
         {
             moveSpeed -= 3f;
             isKickboard = false;
+        }
+
+        void RestShield()
+        {
+            isShield = false;
         }
 
 }

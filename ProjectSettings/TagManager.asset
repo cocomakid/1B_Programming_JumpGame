@@ -8,6 +8,9 @@ TagManager:
   - Boundary
   - Enemy
   - Obstacle
+  - shieldItem
+  - hpItem
+  - Audio
   layers:
   - Default
   - TransparentFX
