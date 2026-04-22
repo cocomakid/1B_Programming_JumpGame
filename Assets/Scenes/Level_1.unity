@@ -813,7 +813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   musicSource: {fileID: 1616766756}
   SFXSource: {fileID: 2137976433}
-  background: {fileID: 8300000, guid: 3777b5eea1dd3da4395538a32ea30fc5, type: 3}
+  background: {fileID: 8300000, guid: 7a18c70ff8af3e14f828be8b98750dd0, type: 3}
   death: {fileID: 8300000, guid: d408b84c53fdd134a9d937e1701756f8, type: 3}
   checkpoint: {fileID: 0}
   enemy: {fileID: 8300000, guid: 82807f118ec9b4a0dbbb5234dd645837, type: 3}

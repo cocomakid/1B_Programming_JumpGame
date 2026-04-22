@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -26,6 +28,7 @@ public class AudioManager : MonoBehaviour
     {
         if (instance != null && instance != this)
         {
+            instance.ChangeBackgroundMusic(this.background);
             Destroy(gameObject);
             return;
         }
@@ -36,8 +39,25 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        musicSource.clip = background;
+        PlayBackground(background);
+    }
+
+    public void PlayBackground(AudioClip clip)
+    {
+        if (clip == null) return;
+
+        musicSource.clip = clip;
         musicSource.loop = true;
         musicSource.Play();
+    }
+
+    public void ChangeBackgroundMusic(AudioClip newClip)
+    {
+        if (musicSource.clip != newClip)
+        {
+            PlayBackground(newClip);
+        }
+            
+
     }
 }
