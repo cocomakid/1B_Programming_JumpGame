@@ -13,6 +13,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip death;
     public AudioClip checkpoint;
     public AudioClip enemy;
+    public AudioClip item;
     public AudioClip portalIn;
     public AudioClip portalOut;
 

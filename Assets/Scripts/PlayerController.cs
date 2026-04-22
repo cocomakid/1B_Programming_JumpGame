@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
+    public bool doubleJump = false;
     public Transform groundCheck;
     public LayerMask groundLayer;
 
@@ -39,7 +40,7 @@ public class PlayerController : MonoBehaviour
         pAni = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
 
-        audioManager = AudioManager.instance;
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     private void Start()
@@ -74,11 +75,22 @@ public class PlayerController : MonoBehaviour
     {
         if (moveSpeed >= 7f) return;
 
-        if (value.isPressed && isGrounded)
+        if (value.isPressed)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-            pAni.SetTrigger("Jump");
+            if (isGrounded)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                pAni.SetTrigger("Jump");
+            }
+            else if (!isGrounded && doubleJump)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                pAni.SetTrigger("Jump");
+                
+                doubleJump = false;
+            }
         }
     }
 
@@ -148,6 +160,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Respawn"))
         {
+            audioManager.PlaySFX(audioManager.death);
             Die();
         }
 
@@ -155,10 +168,7 @@ public class PlayerController : MonoBehaviour
         {
             if (isInvincible) return;
 
-            if (audioManager != null && audioManager.enemy != null)
-            {
-                audioManager.PlaySFX(audioManager.enemy);
-            }
+            audioManager.PlaySFX(audioManager.enemy);
 
             if (isShield)
             {
@@ -173,16 +183,14 @@ public class PlayerController : MonoBehaviour
 
         if (collision.CompareTag("Finish"))
         {
-            if (audioManager != null && audioManager.portalIn != null)
-            {
-                audioManager.PlaySFX(audioManager.portalIn);
-            }
+ 
             collision.GetComponent<LevelObject>().MoveToNextLevel();
         }
 
 
         if (collision.CompareTag("hpItem"))
         {
+            audioManager.PlaySFX(audioManager.item);
             if (hp < 3)
             {
                 hp++;
@@ -195,6 +203,7 @@ public class PlayerController : MonoBehaviour
         
         if (collision.CompareTag("speedItem"))
         {
+            audioManager.PlaySFX(audioManager.item);
             moveSpeed += 3f;
             isKickboard = true;
             Destroy(collision.gameObject);
@@ -203,8 +212,16 @@ public class PlayerController : MonoBehaviour
 
         if (collision.CompareTag("shieldItem"))
         {
+            audioManager.PlaySFX(audioManager.item);
             isShield = true;
             shieldObject.SetActive(true);
+            Destroy(collision.gameObject);
+        }
+
+        if (collision.CompareTag("jumpItem"))
+        {
+            audioManager.PlaySFX(audioManager.item);
+            doubleJump = true;
             Destroy(collision.gameObject);
         }
 

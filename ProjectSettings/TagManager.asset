@@ -11,6 +11,7 @@ TagManager:
   - shieldItem
   - hpItem
   - Audio
+  - jumpItem
   layers:
   - Default
   - TransparentFX
