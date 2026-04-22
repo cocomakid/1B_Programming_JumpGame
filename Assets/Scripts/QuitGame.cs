@@ -6,8 +6,8 @@ public class QuitGame : MonoBehaviour
     {
         Application.Quit();
 
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-
-        Debug.Log("게임이 종료되었습니다.");
+#endif
     }
 }
