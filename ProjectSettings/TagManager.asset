@@ -4,14 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - speedItem
   - Boundary
-  - Enemy
-  - Obstacle
-  - shieldItem
-  - hpItem
   - Audio
-  - jumpItem
+  - NPC
   layers:
   - Default
   - TransparentFX

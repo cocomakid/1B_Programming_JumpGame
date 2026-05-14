@@ -10,11 +10,12 @@ public class LevelObject : MonoBehaviour
 
     private void Awake()
     {
-        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        //audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
     public void MoveToNextLevel()
     {
-        audioManager.PlaySFX(audioManager.portalIn);
+        Debug.Log("Moving to next level: " + nextLevel);
+        //audioManager.PlaySFX(audioManager.portalIn);
         SceneManager.LoadScene(nextLevel);
     }
 }
